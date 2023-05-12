@@ -1,5 +1,6 @@
 package com.comunidadedevspace.taskbeats
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -11,6 +12,7 @@ import android.widget.TextView
 
 class TaskDetailActivity : AppCompatActivity() {
 
+    private lateinit var task: Task
     companion object{
       private const val TASK_DETAIL_EXTRA = "task.extra.detail"
         fun start(context: Context, task: Task): Intent{
@@ -26,8 +28,7 @@ class TaskDetailActivity : AppCompatActivity() {
         setContentView(R.layout.activity_task_detail)
 
         //Recuperar a task
-        val task: Task? = intent.getSerializableExtra((TASK_DETAIL_EXTRA) as Task?
-                requireNotNull(task)
+         task = intent.getSerializableExtra(TASK_DETAIL_EXTRA) as Task
 
 
         //Recuperar campo do XML
@@ -47,6 +48,14 @@ class TaskDetailActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId){
             R.id.delete_task -> {
+                val intent = Intent()
+                    .apply{
+                        val actionType = ActionType.DELETE
+                        val taskAction = TaskAction(task, actionType)
+                        putExtra(TASK_ACTION_RESULT,taskAction)
+                    }
+                setResult(Activity.RESULT_OK, intent)
+                finish()
                 true
             }
             else -> super.onOptionsItemSelected(item)
