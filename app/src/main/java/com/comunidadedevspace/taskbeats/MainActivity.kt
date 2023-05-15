@@ -10,20 +10,33 @@ import androidx.recyclerview.widget.RecyclerView
 import java.io.Serializable
 
 class MainActivity : AppCompatActivity() {
+
+
     //Kotlin
     private val taskList = arrayListOf(
         Task(0, "Title0", "Desc0"),
         Task(1, "Title1", "Desc1"),
+        Task(2, "Title2", "Desc1"),
+        Task(3, "Title3", "Desc1"),
     )
-   private val  adapter: TaskListAdapter = TaskListAdapter(::openTaskDetailView)
+
+    //Adapter
+    private val adapter: TaskListAdapter = TaskListAdapter(::openTaskDetailView)
+
+
     private val startForResult = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK) {
+            //pegando resultado
             val data = result.data
             val taskAction = data?.getSerializableExtra(TASK_ACTION_RESULT) as TaskAction
             val task: Task = taskAction.task
+
+            //removendo item da lista kotlin
             taskList.remove(task)
+
+            //atualizar o adapter
             adapter.submit(taskList)
         }
     }
@@ -33,9 +46,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
-        //Adapter
-        val adapter: TaskListAdapter = TaskListAdapter(::openTaskDetailView)
-        adapter.submit(taskList)
 
         //RecyclerView
         val rvTasks = findViewById<RecyclerView>(R.id.rv_task_list)

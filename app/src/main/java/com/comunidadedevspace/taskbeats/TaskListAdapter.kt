@@ -7,10 +7,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 class TaskListAdapter(
-    private val openTaskDetailView:(task: Task) -> Unit):
-    RecyclerView.Adapter<TaskListViewHolder>() {
+    private val openTaskDetailView:(task: Task) -> Unit
+): RecyclerView.Adapter<TaskListViewHolder>() {
 
-    private var listTask : List<Task> = emptyList()
+    private  var listTask: List<Task> = emptyList()
 
     fun submit(list: List<Task>){
         listTask = list
