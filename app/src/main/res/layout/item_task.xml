@@ -9,24 +9,19 @@
     <TextView
         android:id="@+id/tv_task_title"
         android:text="Title Sample"
+        android:textColor="@color/brown_900"
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
     <TextView
+        android:textColor="@color/brown_700"
         android:id="@+id/tv_task_description"
-        android:layout_marginTop="8dp"
         android:text="Descrição UI um pouco sobre"
         android:layout_width="match_parent"
+        android:layout_marginBottom="8dp"
         android:layout_height="wrap_content"/>
-
-    <View
-        android:layout_height="1dp"
-        android:background="@color/teal_200"
-        android:alpha="0.5"
-        android:layout_width="match_parent"
-        android:layout_marginTop="8dp"/>
 
 
 </LinearLayout>

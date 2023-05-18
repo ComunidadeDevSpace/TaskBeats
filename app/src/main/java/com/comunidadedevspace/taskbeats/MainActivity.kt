@@ -4,6 +4,9 @@ import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.widget.ImageView
+import android.widget.LinearLayout
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.RecyclerView
@@ -14,11 +17,13 @@ class MainActivity : AppCompatActivity() {
 
     //Kotlin
     private val taskList = arrayListOf(
-        Task(0, "Title0", "Desc0"),
-        Task(1, "Title1", "Desc1"),
-        Task(2, "Title2", "Desc1"),
-        Task(3, "Title3", "Desc1"),
+        Task(0, "Academia", "Treino de Força"),
+        Task(1, "Mercado", "Comprar arroz e feijão"),
+        Task(2, "DevSpace", "Estudar DevSpace"),
+        Task(3, "Trabalho", "Lavar uniforme"),
     )
+
+    private lateinit var ctnContent: LinearLayout
 
     //Adapter
     private val adapter: TaskListAdapter = TaskListAdapter(::openTaskDetailView)
@@ -36,8 +41,12 @@ class MainActivity : AppCompatActivity() {
             //removendo item da lista kotlin
             taskList.remove(task)
 
+            if(taskList.size == 0){
+                ctnContent.visibility = View.VISIBLE
+            }
+
             //atualizar o adapter
-            adapter.submit(taskList)
+            adapter.submitList(taskList)
         }
     }
 
@@ -45,11 +54,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        ctnContent = findViewById(R.id.ctn_content)
+
+        adapter.submitList(taskList)
 
 
         //RecyclerView
         val rvTasks = findViewById<RecyclerView>(R.id.rv_task_list)
         rvTasks.adapter = adapter
+        adapter.submitList(taskList)
     }
 
     private fun openTaskDetailView(task: Task) {
