@@ -1,22 +1,22 @@
 package com.comunidadedevspace.taskbeats
 
 import android.app.Activity
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import java.io.Serializable
 
 class MainActivity : AppCompatActivity() {
 
 
     //Kotlin
-    private val taskList = arrayListOf(
+    private var taskList = arrayListOf(
         Task(0, "Academia", "Treino de Força"),
         Task(1, "Mercado", "Comprar arroz e feijão"),
         Task(2, "DevSpace", "Estudar DevSpace"),
@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var ctnContent: LinearLayout
 
     //Adapter
-    private val adapter: TaskListAdapter = TaskListAdapter(::openTaskDetailView)
+    private val adapter: TaskListAdapter = TaskListAdapter(::onListItemClicked)
 
 
     private val startForResult = registerForActivityResult(
@@ -38,21 +38,30 @@ class MainActivity : AppCompatActivity() {
             val taskAction = data?.getSerializableExtra(TASK_ACTION_RESULT) as TaskAction
             val task: Task = taskAction.task
 
-            //removendo item da lista kotlin
-            taskList.remove(task)
+            val newList = arrayListOf<Task>()
+                .apply {
+                    addAll(taskList)
+                }
 
-            if(taskList.size == 0){
+            //removendo item da lista kotlin
+
+            newList.remove(task)
+
+            showMessage(ctnContent,"Item deleted ${task.title}")
+            if(newList.size == 0){
                 ctnContent.visibility = View.VISIBLE
             }
 
             //atualizar o adapter
-            adapter.submitList(taskList)
+            adapter.submitList(newList)
+
+            taskList = newList
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_task_list)
 
         ctnContent = findViewById(R.id.ctn_content)
 
@@ -63,13 +72,27 @@ class MainActivity : AppCompatActivity() {
         val rvTasks = findViewById<RecyclerView>(R.id.rv_task_list)
         rvTasks.adapter = adapter
         adapter.submitList(taskList)
+
+        val fab = findViewById<FloatingActionButton>(R.id.fab_add)
+        fab.setOnClickListener {
+            openTaskListDetail(null)
+        }
     }
 
-    private fun openTaskDetailView(task: Task) {
+    private fun showMessage(view: View, message:String){
+        Snackbar.make(view, message, Snackbar.LENGTH_LONG)
+            .setAction("Action", null)
+            .show()
+    }
+
+    private fun onListItemClicked(task: Task) {
+        openTaskListDetail(task)
+
+    }
+
+    private fun openTaskListDetail(task: Task?){
         val intent = TaskDetailActivity.start(this, task)
-
         startForResult.launch(intent)
-
     }
 }
 

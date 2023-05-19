@@ -12,10 +12,10 @@ import android.widget.TextView
 
 class TaskDetailActivity : AppCompatActivity() {
 
-    private lateinit var task: Task
+    private  var task: Task? = null
     companion object{
       private const val TASK_DETAIL_EXTRA = "task.extra.detail"
-        fun start(context: Context, task: Task): Intent{
+        fun start(context: Context, task: Task?): Intent{
             val intent = Intent(context, TaskDetailActivity::class.java)
                 .apply {
                     putExtra(TASK_DETAIL_EXTRA, task)
@@ -28,7 +28,7 @@ class TaskDetailActivity : AppCompatActivity() {
         setContentView(R.layout.activity_task_detail)
 
         //Recuperar a task
-         task = intent.getSerializableExtra(TASK_DETAIL_EXTRA) as Task
+         task = intent.getSerializableExtra(TASK_DETAIL_EXTRA) as Task?
 
 
         //Recuperar campo do XML
@@ -36,7 +36,7 @@ class TaskDetailActivity : AppCompatActivity() {
 
 
         //setar um novo texto na tela
-        tvTitle.text = task.title
+        tvTitle.text = task?.title  ?: "Adicione uma tarefa"
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -48,13 +48,16 @@ class TaskDetailActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId){
             R.id.delete_task -> {
-                val intent = Intent()
-                    .apply{
-                        val actionType = ActionType.DELETE
-                        val taskAction = TaskAction(task, actionType)
-                        putExtra(TASK_ACTION_RESULT,taskAction)
-                    }
-                setResult(Activity.RESULT_OK, intent)
+
+                if(task != null) {
+                    val intent = Intent()
+                        .apply {
+                            val actionType = ActionType.DELETE
+                            val taskAction = TaskAction(task!!, actionType)
+                            putExtra(TASK_ACTION_RESULT, taskAction)
+                        }
+                    setResult(Activity.RESULT_OK, intent)
+                }
                 finish()
                 true
             }
