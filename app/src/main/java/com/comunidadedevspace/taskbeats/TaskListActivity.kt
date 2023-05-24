@@ -38,24 +38,40 @@ class MainActivity : AppCompatActivity() {
             val taskAction = data?.getSerializableExtra(TASK_ACTION_RESULT) as TaskAction
             val task: Task = taskAction.task
 
-            val newList = arrayListOf<Task>()
-                .apply {
-                    addAll(taskList)
+            if(taskAction.actionType == ActionType.DELETE.name){
+                val newList = arrayListOf<Task>()
+                    .apply {
+                        addAll(taskList)
+                    }
+
+                //removendo item da lista kotlin
+
+                newList.remove(task)
+
+                showMessage(ctnContent,"Item deleted ${task.title}")
+                if(newList.size == 0){
+                    ctnContent.visibility = View.VISIBLE
                 }
 
-            //removendo item da lista kotlin
+                //atualizar o adapter
+                adapter.submitList(newList)
 
-            newList.remove(task)
+                taskList = newList
+            }else if(taskAction.actionType == ActionType.CREATE.name){
+                val newList = arrayListOf<Task>()
+                    .apply {
+                        addAll(taskList)
+                    }
+                //add item da lista kotlin
 
-            showMessage(ctnContent,"Item deleted ${task.title}")
-            if(newList.size == 0){
-                ctnContent.visibility = View.VISIBLE
+                newList.add(task)
+                showMessage(ctnContent,"Item deleted ${task.title}")
+
+                //atualizar o adapter
+                adapter.submitList(newList)
+                taskList = newList
+
             }
-
-            //atualizar o adapter
-            adapter.submitList(newList)
-
-            taskList = newList
         }
     }
 
@@ -96,16 +112,15 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-sealed class ActionType : java.io.Serializable {
-    object DELETE : ActionType()
-    object UPDATE : ActionType()
-    object CREATE : ActionType()
-
+enum class ActionType {
+    DELETE,
+    UPDATE,
+    CREATE
 }
 
 data class TaskAction(
     val task: Task,
-    val actionType: ActionType
+    val actionType: String
 ) : Serializable
 
 const val TASK_ACTION_RESULT = "TASK_ACTION_RESULT"

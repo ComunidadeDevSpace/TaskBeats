@@ -4,11 +4,42 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_margin="16dp"
     tools:context=".TaskDetailActivity">
 
     <TextView
-        android:id="@+id/tv_task_title_detail"
+        android:textColor="@color/brown_900"
+        android:text="Title"
         android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+
+    <EditText
+        android:id="@+id/edt_task_title"
+        android:hint="Adicione um nome para sua tarefa"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:textColor="@color/brown_900"
+        android:layout_marginTop="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Description"/>
+
+    <EditText
+        android:id="@+id/edt_task_description"
+        android:hint="Adicione uma descrição para sua tarefa"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:layout_marginTop="16dp"
+        android:id="@+id/btn_done"
+        android:text="Concluir"
+        android:textColor="@color/brown_900"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
 </LinearLayout>
