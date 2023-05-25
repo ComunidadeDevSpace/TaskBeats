@@ -71,7 +71,7 @@ class TaskDetailActivity : AppCompatActivity() {
         title: String,
         description: String,
         actionType: ActionType){
-        val task = Task(0,title,description)
+        val task = Task(id,title,description)
         returnAction(task, actionType)
     }
 
