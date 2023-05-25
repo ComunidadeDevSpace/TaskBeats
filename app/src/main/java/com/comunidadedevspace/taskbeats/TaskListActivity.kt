@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity() {
                 adapter.submitList(newList)
 
                 taskList = newList
-            }else if(taskAction.actionType == ActionType.CREATE.name){
+            }else if(taskAction.actionType == ActionType.CREATE.name) {
                 val newList = arrayListOf<Task>()
                     .apply {
                         addAll(taskList)
@@ -65,12 +65,25 @@ class MainActivity : AppCompatActivity() {
                 //add item da lista kotlin
 
                 newList.add(task)
-                showMessage(ctnContent,"Item deleted ${task.title}")
+                showMessage(ctnContent, "Item deleted ${task.title}")
 
                 //atualizar o adapter
                 adapter.submitList(newList)
                 taskList = newList
+            }else if(taskAction.actionType == ActionType.UPDATE.name){
+                val tempEmptyList = arrayListOf<Task>()
+                taskList.forEach{
+                    if(it.id == task.id){
+                        val newItem = Task(it.id, task.title, task.description)
+                        tempEmptyList.add(newItem)
+                    }else{
+                        tempEmptyList.add(it)
+                    }
+                }
 
+                showMessage(ctnContent, "Item updated ${task.title}")
+                adapter.submitList(tempEmptyList)
+                taskList = tempEmptyList
             }
         }
     }
@@ -111,6 +124,12 @@ class MainActivity : AppCompatActivity() {
         startForResult.launch(intent)
     }
 }
+
+//CRUD
+//CREATE
+//READ
+//UPDATE
+//DELETE
 
 enum class ActionType {
     DELETE,
