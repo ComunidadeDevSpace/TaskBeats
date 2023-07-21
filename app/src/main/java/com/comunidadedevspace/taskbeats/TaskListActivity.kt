@@ -8,8 +8,13 @@ import android.widget.LinearLayout
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.Room
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
 import java.io.Serializable
 
 class MainActivity : AppCompatActivity() {
@@ -28,6 +33,17 @@ class MainActivity : AppCompatActivity() {
     //Adapter
     private val adapter: TaskListAdapter = TaskListAdapter(::onListItemClicked)
 
+
+    private val dataBase by lazy {
+        Room.databaseBuilder(
+            applicationContext,
+            AppDataBase::class.java, "taskbeats-database"
+        ).build()
+    }
+
+   private  val dao by lazy {
+       dataBase.taskDao()
+   }
 
     private val startForResult = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -58,32 +74,10 @@ class MainActivity : AppCompatActivity() {
 
                 taskList = newList
             }else if(taskAction.actionType == ActionType.CREATE.name) {
-                val newList = arrayListOf<Task>()
-                    .apply {
-                        addAll(taskList)
-                    }
-                //add item da lista kotlin
-
-                newList.add(task)
-                showMessage(ctnContent, "Item deleted ${task.title}")
-
-                //atualizar o adapter
-                adapter.submitList(newList)
-                taskList = newList
+               insertIntoDataBase(task)
+                listFromDataBase()
             }else if(taskAction.actionType == ActionType.UPDATE.name){
-                val tempEmptyList = arrayListOf<Task>()
-                taskList.forEach{
-                    if(it.id == task.id){
-                        val newItem = Task(it.id, task.title, task.description)
-                        tempEmptyList.add(newItem)
-                    }else{
-                        tempEmptyList.add(it)
-                    }
-                }
-
-                showMessage(ctnContent, "Item updated ${task.title}")
-                adapter.submitList(tempEmptyList)
-                taskList = tempEmptyList
+                updateIntoDataBase(task)
             }
         }
     }
@@ -92,9 +86,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_task_list)
 
-        ctnContent = findViewById(R.id.ctn_content)
 
-        adapter.submitList(taskList)
+        listFromDataBase()
+        ctnContent = findViewById(R.id.ctn_content)
 
 
         //RecyclerView
@@ -105,6 +99,27 @@ class MainActivity : AppCompatActivity() {
         val fab = findViewById<FloatingActionButton>(R.id.fab_add)
         fab.setOnClickListener {
             openTaskListDetail(null)
+        }
+    }
+
+    private fun insertIntoDataBase(task: Task){
+        CoroutineScope(IO).launch {
+            dao.insert(task)
+            listFromDataBase()
+        }
+    }
+
+    private fun updateIntoDataBase(task: Task){
+        CoroutineScope(IO).launch {
+            dao.update(task)
+            listFromDataBase()
+        }
+    }
+
+    private fun listFromDataBase(){
+        CoroutineScope(IO).launch {
+            val myDataBaseList: List<Task> = dao.getAll()
+            adapter.submitList(myDataBaseList)
         }
     }
 
@@ -126,10 +141,6 @@ class MainActivity : AppCompatActivity() {
 }
 
 //CRUD
-//CREATE
-//READ
-//UPDATE
-//DELETE
 
 enum class ActionType {
     DELETE,

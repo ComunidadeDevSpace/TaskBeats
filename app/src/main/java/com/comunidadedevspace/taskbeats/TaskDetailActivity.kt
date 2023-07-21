@@ -30,6 +30,7 @@ class TaskDetailActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_task_detail)
+        setSupportActionBar(findViewById(R.id.toolbar))
 
         //Recuperar a task
          task = intent.getSerializableExtra(TASK_DETAIL_EXTRA) as Task?

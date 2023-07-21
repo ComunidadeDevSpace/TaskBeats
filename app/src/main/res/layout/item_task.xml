@@ -9,17 +9,16 @@
     <TextView
         android:id="@+id/tv_task_title"
         android:text="Title Sample"
-        android:textColor="@color/brown_900"
-        android:textSize="18sp"
-        android:textStyle="bold"
+        style="@style/Title3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
     <TextView
-        android:textColor="@color/brown_700"
+
         android:id="@+id/tv_task_description"
         android:text="Descrição UI um pouco sobre"
         android:layout_width="match_parent"
+        style="@style/Body1"
         android:layout_marginBottom="8dp"
         android:layout_height="wrap_content"/>
 
