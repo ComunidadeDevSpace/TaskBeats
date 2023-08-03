@@ -1,4 +1,4 @@
-package com.comunidadedevspace.taskbeats
+package com.comunidadedevspace.taskbeats.data
 
 import java.io.Serializable
 import android.app.ActivityManager.TaskDescription

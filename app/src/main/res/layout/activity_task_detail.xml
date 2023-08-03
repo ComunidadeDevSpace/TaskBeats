@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
 
-    tools:context=".TaskDetailActivity">
+    tools:context=".presentation.TaskDetailActivity">
 
     <include layout="@layout/toolbar"/>
 
