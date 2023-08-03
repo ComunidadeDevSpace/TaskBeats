@@ -1,6 +1,7 @@
 package com.comunidadedevspace.taskbeats
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -15,8 +16,12 @@ interface TaskDao {
     @Query("Select * from task")
     fun getAll(): List<Task>
 
-    //Update encontrar pelo id a tarefa que queremos
-
     @Update(onConflict = OnConflictStrategy.REPLACE)
     fun update(task: Task)
+
+    @Query("DELETE from task")
+    fun deleteAll()
+
+    @Query("DELETE from task WHERE id =:id")
+    fun deleteById(id:Int)
 }

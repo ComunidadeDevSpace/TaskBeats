@@ -3,6 +3,9 @@ package com.comunidadedevspace.taskbeats
 import android.app.Activity
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.widget.LinearLayout
 import androidx.activity.result.ActivityResult
@@ -49,35 +52,14 @@ class MainActivity : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK) {
-            //pegando resultado
             val data = result.data
             val taskAction = data?.getSerializableExtra(TASK_ACTION_RESULT) as TaskAction
             val task: Task = taskAction.task
 
-            if(taskAction.actionType == ActionType.DELETE.name){
-                val newList = arrayListOf<Task>()
-                    .apply {
-                        addAll(taskList)
-                    }
-
-                //removendo item da lista kotlin
-
-                newList.remove(task)
-
-                showMessage(ctnContent,"Item deleted ${task.title}")
-                if(newList.size == 0){
-                    ctnContent.visibility = View.VISIBLE
-                }
-
-                //atualizar o adapter
-                adapter.submitList(newList)
-
-                taskList = newList
-            }else if(taskAction.actionType == ActionType.CREATE.name) {
-               insertIntoDataBase(task)
-                listFromDataBase()
-            }else if(taskAction.actionType == ActionType.UPDATE.name){
-                updateIntoDataBase(task)
+            when (taskAction.actionType) {
+                ActionType.DELETE.name -> deleteById(task.id)
+                ActionType.CREATE.name -> insertIntoDataBase(task)
+                ActionType.UPDATE.name -> updateIntoDataBase(task)
             }
         }
     }
@@ -85,6 +67,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_task_list)
+        setSupportActionBar(findViewById(R.id.toolbar))
 
 
         listFromDataBase()
@@ -116,6 +99,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun deleteAll(){
+        CoroutineScope(IO).launch {
+            dao.deleteAll()
+            listFromDataBase()
+        }
+    }
+
+    private fun deleteById(id: Int){
+        CoroutineScope(IO).launch {
+            dao.deleteById(id)
+            listFromDataBase()
+        }
+    }
+
     private fun listFromDataBase(){
         CoroutineScope(IO).launch {
             val myDataBaseList: List<Task> = dao.getAll()
@@ -137,6 +134,22 @@ class MainActivity : AppCompatActivity() {
     private fun openTaskListDetail(task: Task?){
         val intent = TaskDetailActivity.start(this, task)
         startForResult.launch(intent)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater : MenuInflater = menuInflater
+        inflater.inflate(R.menu.menu_task_list, menu)
+        return true
+    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId){
+            R.id.delete_all_task -> {
+                //deletar todas as tarefas
+                deleteAll()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 }
 
