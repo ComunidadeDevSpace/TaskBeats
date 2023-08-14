@@ -11,7 +11,6 @@ import android.widget.LinearLayout
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.Room
 import com.comunidadedevspace.taskbeats.R
 import com.comunidadedevspace.taskbeats.data.AppDataBase
 import com.comunidadedevspace.taskbeats.data.Task
@@ -25,26 +24,13 @@ import java.io.Serializable
 class MainActivity : AppCompatActivity() {
 
 
-    //Kotlin
-    private var taskList = arrayListOf(
-        Task(0, "Academia", "Treino de Força"),
-        Task(1, "Mercado", "Comprar arroz e feijão"),
-        Task(2, "DevSpace", "Estudar DevSpace"),
-        Task(3, "Trabalho", "Lavar uniforme"),
-    )
-
     private lateinit var ctnContent: LinearLayout
 
     //Adapter
-    private val adapter: TaskListAdapter = TaskListAdapter(::onListItemClicked)
+    private val adapter: TaskListAdapter by lazy { TaskListAdapter(::onListItemClicked)}
 
+    lateinit var dataBase: AppDataBase
 
-    private val dataBase by lazy {
-        Room.databaseBuilder(
-            applicationContext,
-            AppDataBase::class.java, "taskbeats-database"
-        ).build()
-    }
 
    private  val dao by lazy {
        dataBase.taskDao()
@@ -71,7 +57,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_task_list)
         setSupportActionBar(findViewById(R.id.toolbar))
 
-
         listFromDataBase()
         ctnContent = findViewById(R.id.ctn_content)
 
@@ -79,13 +64,19 @@ class MainActivity : AppCompatActivity() {
         //RecyclerView
         val rvTasks = findViewById<RecyclerView>(R.id.rv_task_list)
         rvTasks.adapter = adapter
-        adapter.submitList(taskList)
 
         val fab = findViewById<FloatingActionButton>(R.id.fab_add)
         fab.setOnClickListener {
             openTaskListDetail(null)
         }
     }
+
+    override fun onStart() {
+        super.onStart()
+        dataBase = (application as TaskBeatsApplication).dataBase
+
+        }
+
 
     private fun insertIntoDataBase(task: Task){
         CoroutineScope(IO).launch {
