@@ -10,8 +10,10 @@ import android.view.View
 import android.widget.LinearLayout
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.comunidadedevspace.taskbeats.R
+import com.comunidadedevspace.taskbeats.TaskBeatsApplication
 import com.comunidadedevspace.taskbeats.data.AppDataBase
 import com.comunidadedevspace.taskbeats.data.Task
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -21,20 +23,25 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import java.io.Serializable
 
-class MainActivity : AppCompatActivity() {
+class TaskListActivity : AppCompatActivity() {
 
 
     private lateinit var ctnContent: LinearLayout
 
     //Adapter
-    private val adapter: TaskListAdapter by lazy { TaskListAdapter(::onListItemClicked)}
+    private val adapter : TaskListAdapter by lazy {
+        TaskListAdapter(::onListItemClicked)
+    }
 
+    private val viewModel: TaskListViewModel by lazy {
+        TaskListViewModel.create(application)
+    }
     lateinit var dataBase: AppDataBase
 
+    private val dao by lazy{
+        dataBase.taskDao()
+    }
 
-   private  val dao by lazy {
-       dataBase.taskDao()
-   }
 
     private val startForResult = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -57,7 +64,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_task_list)
         setSupportActionBar(findViewById(R.id.toolbar))
 
-        listFromDataBase()
         ctnContent = findViewById(R.id.ctn_content)
 
 
@@ -68,12 +74,14 @@ class MainActivity : AppCompatActivity() {
         val fab = findViewById<FloatingActionButton>(R.id.fab_add)
         fab.setOnClickListener {
             openTaskListDetail(null)
+
         }
     }
 
     override fun onStart() {
         super.onStart()
-        dataBase = (application as TaskBeatsApplication).dataBase
+        dataBase = (application as TaskBeatsApplication).getAppDataBase()
+        listFromDataBase()
 
         }
 
@@ -81,36 +89,37 @@ class MainActivity : AppCompatActivity() {
     private fun insertIntoDataBase(task: Task){
         CoroutineScope(IO).launch {
             dao.insert(task)
-            listFromDataBase()
         }
     }
 
     private fun updateIntoDataBase(task: Task){
         CoroutineScope(IO).launch {
             dao.update(task)
-            listFromDataBase()
         }
     }
 
     private fun deleteAll(){
         CoroutineScope(IO).launch {
             dao.deleteAll()
-            listFromDataBase()
         }
     }
-
+ 
     private fun deleteById(id: Int){
         CoroutineScope(IO).launch {
             dao.deleteById(id)
-            listFromDataBase()
         }
     }
 
     private fun listFromDataBase(){
-        CoroutineScope(IO).launch {
-            val myDataBaseList: List<Task> = dao.getAll()
-            adapter.submitList(myDataBaseList)
-        }
+            //Observer
+            val listObserver = Observer<List<Task>>{ listTask ->
+                adapter.submitList(listTask)
+            }
+
+            //Live Data
+            dao.getAll().observe(this@TaskListActivity, listObserver)
+            /*val myDataBaseList: List<Task> = dao.getAll()
+            adapter.submitList(myDataBaseList)*/
     }
 
     private fun showMessage(view: View, message:String){
